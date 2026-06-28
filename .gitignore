@@ -1,5 +1,8 @@
 # build output
 dist/
+# Webflow migration artifacts (too large for GitHub)
+*.zip
+src/*.webflow*
 # generated types
 .astro/
 

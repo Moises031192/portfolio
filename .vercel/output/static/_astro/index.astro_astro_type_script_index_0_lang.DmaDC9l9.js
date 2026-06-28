@@ -1,1 +1,0 @@
-import{g as e}from"./index.CzGW6FVa.js";import{S as t}from"./ScrollTrigger.DNECHiyU.js";e.registerPlugin(t);const o=e.utils.toArray(".reference-section .separator-line");matchMedia("(prefers-reduced-motion: reduce)").matches?e.set(o,{scaleX:1}):o.forEach(r=>{e.fromTo(r,{scaleX:0},{scaleX:1,duration:.9,ease:"power4.out",scrollTrigger:{trigger:r,start:"top 90%",once:!0}})});

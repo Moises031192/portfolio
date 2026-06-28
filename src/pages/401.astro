@@ -1,0 +1,33 @@
+---
+import PortfolioLayout from '../layouts/PortfolioLayout.astro';
+---
+
+<PortfolioLayout
+  title="Protected page"
+  description="Protected page"
+  ogImage="/images/Moises-portada.webp"
+  bodyClass=""
+>
+  <div class="utility-page-wrap">
+    <div class="utility-page-content w-password-page w-form">
+      <form id="email-form" name="email-form" data-name="Email Form" class="utility-page-form w-password-page"><img src="https://d3e54v103j8qbb.cloudfront.net/static/utility-lock.ae54711958.svg" alt="" />
+        <h2>Protected Page</h2><label for="pass" class="w-password-page">Password</label><input class="w-password-page w-input" maxlength="256" name="pass" data-name="field" placeholder="Enter your password" type="password" id="pass" /><input type="submit" data-wait="Please wait..." class="w-password-page w-button" value="Submit" />
+        <div class="w-password-page w-form-fail">
+          <div>Incorrect password. Please try again.</div>
+        </div>
+      </form>
+    </div>
+  </div>
+</PortfolioLayout>
+
+<script>
+  // Static reproduction of Webflow's password page: no backend, surface the fail state.
+  const form = document.getElementById('email-form') as HTMLFormElement | null;
+  if (form) {
+    const fail = form.querySelector<HTMLElement>('.w-form-fail');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (fail) fail.style.display = 'block';
+    });
+  }
+</script>

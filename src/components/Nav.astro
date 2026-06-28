@@ -1,0 +1,253 @@
+---
+// Top navigation + mobile slide-in menu. Shared across all pages.
+---
+<style>
+  /* Evita que las opciones del menú (p. ej. "Sobre mí") se partan en dos líneas.
+     El div de texto hereda `display:flex; flex-direction:column` de .nav--item,
+     y ese flex anidado calcula el ancho como min-content (parte por la palabra
+     más larga). Lo devolvemos a flujo normal de bloque + nowrap. */
+  .wysiwyg.nav--item {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .nav--link {
+    white-space: nowrap;
+  }
+
+  /* ---------- Nav superior: se oculta al bajar, reaparece al subir ---------- */
+  .menu-top-nav {
+    position: sticky;
+    top: 0;
+    transition: transform 0.35s ease;
+    will-change: transform;
+  }
+
+  .menu-top-nav.nav-hidden {
+    transform: translateY(-100%);
+  }
+
+  /* ---------- Menú móvil (pantalla completa, entra desde la derecha) ---------- */
+  @media (max-width: 479px) {
+    /* Evita scroll horizontal por el panel fuera de pantalla. `clip` (en vez de
+       `hidden`) no crea un contenedor de scroll, así no rompe el sticky del nav. */
+    :global(html),
+    :global(body) {
+      overflow-x: clip;
+    }
+
+    .mobile-nav-menu {
+      display: flex !important;
+      flex-direction: column;
+      align-items: flex-start; /* anula el flex-end heredado del breakpoint ≤991 */
+      text-align: left;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      padding: 16px;
+      background-color: #fff;
+      transform: translateX(100%); /* fuera, a la derecha; GSAP lo anima a 0 */
+      pointer-events: none;
+      z-index: 2147483000; /* por encima del nav superior (z-index 9999999) */
+    }
+
+    /* Logo M|M arriba */
+    .mobile-menu-logo {
+      flex: 0 0 auto;
+      width: 56px;
+      height: auto;
+    }
+
+    /* Opciones centradas verticalmente */
+    .mobile-menu-options {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .mobile-menu-link {
+      font-family: Stelvio, sans-serif;
+      font-weight: 400;
+      font-size: 40px;
+      line-height: 1.1;
+      color: var(--base--black, #101010);
+      text-decoration: none;
+    }
+
+    /* Línea inferior con el mail, alineada a la izquierda. Enlace mailto,
+       sin subrayado y siempre en negro en todos los estados. */
+    .mobile-menu-mail,
+    .mobile-menu-mail:link,
+    .mobile-menu-mail:visited,
+    .mobile-menu-mail:hover,
+    .mobile-menu-mail:active,
+    .mobile-menu-mail:focus {
+      flex: 0 0 auto;
+      align-self: flex-start;
+      font-family: Stelvio, sans-serif;
+      font-weight: 400;
+      font-size: 24px;
+      line-height: 1.2;
+      color: var(--base--black, #101010);
+      text-decoration: none;
+    }
+
+    .close-wrapper {
+      position: absolute;
+      inset: 16px 16px auto auto;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+      font-family: Stelvio, sans-serif;
+      font-weight: 300;
+      font-size: 16px;
+      color: var(--base--black, #101010);
+      cursor: pointer;
+    }
+  }
+</style>
+<div class="menu-top-nav">
+  <div class="menu-top-wrapper">
+    <a href="/" aria-current="page" class="logo-wrapper w-inline-block w--current"><img src="/images/LogoMM.svg" loading="lazy" alt="" class="logo-nav-icon" /></a>
+    <div class="nav-wrapper">
+      <a href="/proyectos" class="nav--item w-inline-block">
+        <div class="wysiwyg nav--item">Proyectos</div>
+        <div class="nav--underline"></div>
+      </a>
+      <a href="/sobre-mi" class="nav--item w-inline-block">
+        <div class="wysiwyg nav--item">Sobre mí</div>
+        <div class="nav--underline"></div>
+      </a>
+      <a href="/contacto" class="nav--item w-inline-block">
+        <div class="wysiwyg nav--item">Contacto</div>
+        <div class="nav--underline"></div>
+      </a>
+    </div>
+    <div class="hamburguer-menu">
+      <div class="text-block">Menu</div>
+    </div>
+  </div>
+</div>
+<div class="mobile-nav-menu" aria-hidden="true">
+  <img src="/images/M-_-M.svg" loading="lazy" alt="Moisés Salmán" class="mobile-menu-logo" />
+  <nav class="mobile-menu-options">
+    <a href="/proyectos" class="mobile-menu-link">Proyectos</a>
+    <a href="/sobre-mi" class="mobile-menu-link">Sobre mí</a>
+    <a href="/contacto" class="mobile-menu-link">Contacto</a>
+  </nav>
+  <a href="mailto:info@mrmoises.es" class="mobile-menu-mail">mail:info@mrmoises.es</a>
+  <button type="button" class="close-wrapper" aria-label="Cerrar menú">Cerrar</button>
+</div>
+
+<script>
+  // Menú móvil: entra desde la derecha (xPercent 100 -> 0) en 1.2s power4.out.
+  // Al terminar, el logo y las opciones hacen fade-in de arriba a abajo
+  // con un stagger de 0.1s.
+  import gsap from 'gsap';
+
+  const menu = document.querySelector<HTMLElement>('.mobile-nav-menu');
+  const openBtn = document.querySelector<HTMLElement>('.hamburguer-menu');
+  const closeBtn = document.querySelector<HTMLElement>('.close-wrapper');
+
+  if (menu && openBtn) {
+    const logo = menu.querySelector<HTMLElement>('.mobile-menu-logo');
+    const links = Array.from(
+      menu.querySelectorAll<HTMLElement>('.mobile-menu-link')
+    );
+    const mail = menu.querySelector<HTMLElement>('.mobile-menu-mail');
+    const items = [logo, ...links, mail].filter(Boolean) as HTMLElement[];
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Normaliza el transform: el CSS usa translateX(100%) como estado inicial
+    // sin JS, pero GSAP lo leería como `x` en px. Lo reescribimos como xPercent
+    // (x:0) para que las animaciones de xPercent terminen exactamente en su sitio.
+    gsap.set(menu, { xPercent: 100, x: 0 });
+
+    const open = () => {
+      gsap.killTweensOf([menu, ...items]);
+      menu.style.pointerEvents = 'auto';
+      menu.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      if (reduce) {
+        gsap.set(menu, { xPercent: 0 });
+        gsap.set(items, { opacity: 1, y: 0 });
+        return;
+      }
+
+      gsap.set(items, { opacity: 0, y: 16 });
+      gsap
+        .timeline()
+        .fromTo(
+          menu,
+          { xPercent: 100, x: 0 },
+          { xPercent: 0, duration: 1.2, ease: 'power4.out' }
+        )
+        .to(items, {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+          stagger: 0.1,
+        });
+    };
+
+    const close = () => {
+      gsap.killTweensOf([menu, ...items]);
+      document.body.style.overflow = '';
+      menu.setAttribute('aria-hidden', 'true');
+      const done = () => {
+        menu.style.pointerEvents = 'none';
+      };
+      if (reduce) {
+        gsap.set(menu, { xPercent: 100 });
+        done();
+        return;
+      }
+      gsap.to(menu, {
+        xPercent: 100,
+        duration: 0.6,
+        ease: 'power4.in',
+        onComplete: done,
+      });
+    };
+
+    openBtn.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+  }
+
+  // Nav superior: ocultar al hacer scroll hacia abajo, mostrar al subir.
+  const topNav = document.querySelector<HTMLElement>('.menu-top-nav');
+  if (topNav) {
+    let lastY = window.scrollY;
+    let ticking = false;
+    const update = () => {
+      const y = Math.max(0, window.scrollY);
+      const delta = y - lastY;
+      if (Math.abs(delta) > 6) {
+        if (delta > 0 && y > topNav.offsetHeight) {
+          topNav.classList.add('nav-hidden'); // bajando
+        } else {
+          topNav.classList.remove('nav-hidden'); // subiendo
+        }
+        lastY = y;
+      }
+      ticking = false;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          requestAnimationFrame(update);
+          ticking = true;
+        }
+      },
+      { passive: true }
+    );
+  }
+</script>

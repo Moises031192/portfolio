@@ -1,0 +1,239 @@
+---
+// Pixel-perfect Webflow migration layout.
+// Imports the original Webflow stylesheets verbatim (served from /public/css),
+// which in turn pull fonts from /public/fonts and background images from /public/images.
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  bodyClass?: string;
+}
+
+const {
+  title = 'MrMoises Portfolio',
+  description = 'Product Designer y Nocode-Lover',
+  ogImage = '/images/Moises-portada.webp',
+  bodyClass = 'bg-base-black',
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>{title}</title>
+    <meta content={title} property="og:title" />
+    <meta content={description} property="og:description" />
+    <meta content={ogImage} property="og:image" />
+    <meta content={title} name="twitter:title" />
+    <meta content={description} name="twitter:description" />
+    <meta content={ogImage} name="twitter:image" />
+    <meta property="og:type" content="website" />
+    <meta content="summary_large_image" name="twitter:card" />
+    <meta content="Webflow" name="generator" />
+
+    <link href="/css/normalize.css" rel="stylesheet" type="text/css" />
+    <link href="/css/webflow.css" rel="stylesheet" type="text/css" />
+    <link href="/css/portfolio-4e8c8c.webflow.css" rel="stylesheet" type="text/css" />
+
+    <link href="/images/favicon.svg" rel="shortcut icon" type="image/x-icon" />
+    <link href="/images/webclip.svg" rel="apple-touch-icon" />
+
+    <!-- FOUC guard: hide text until GSAP splits it (skipped for reduced motion). -->
+    <script is:inline>
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.classList.add('gsap-split');
+      }
+    </script>
+
+    <style>
+      .cursor {
+        width: 20px;
+        height: 20px;
+        border: 1px solid white;
+        border-radius: 50%;
+        position: absolute;
+        transition-duration: 200ms;
+        transition-timing-function: ease-out;
+        animation: cursorAnim 0.5s infinite alternate;
+        pointer-events: none;
+        z-index: 9999;
+      }
+      .cursor::after {
+        content: '';
+        width: 20px;
+        height: 20px;
+        position: absolute;
+        border: 8px solid gray;
+        border-radius: 50%;
+        opacity: 0.5;
+        top: -50%;
+        left: -50%;
+        animation: cursorAnim2 0.5s infinite alternate;
+      }
+      @keyframes cursorAnim {
+        from { transform: scale(1); }
+        to { transform: scale(0.7); }
+      }
+      @keyframes cursorAnim2 {
+        from { transform: scale(1); }
+        to { transform: scale(0.4); }
+      }
+      @keyframes cursorAnim3 {
+        0% { transform: scale(1); }
+        50% { transform: scale(3); }
+        100% { transform: scale(1); opacity: 0; }
+      }
+      .expand {
+        animation: cursorAnim3 0.5s forwards;
+        border: 1px solid red;
+      }
+      @media (max-width: 990px) {
+        .cursor { display: none; }
+      }
+      ::-webkit-scrollbar { width: 4px; }
+      ::-webkit-scrollbar-track {
+        background-color: rgba(0, 0, 0, 0.05);
+        -webkit-border-radius: 20px;
+        border-radius: 20px;
+      }
+      ::-webkit-scrollbar-thumb {
+        -webkit-border-radius: 20px;
+        border-radius: 20px;
+        background: rgb(54, 49, 49);
+      }
+
+      /* Native marquee replacing the Webflow IX2 logo carousel */
+      .carousel-row {
+        width: max-content;
+        animation: marquee-scroll 40s linear infinite;
+      }
+      @keyframes marquee-scroll {
+        from { transform: translateX(0); }
+        to { transform: translateX(-50%); }
+      }
+
+      /* Scroll-reveal: elements start hidden via inline opacity:0; JS reveals them */
+      [data-reveal] {
+        transition: opacity 0.8s ease, transform 0.8s ease;
+        will-change: opacity, transform;
+      }
+      .mobile-nav-menu.is-open { display: flex !important; }
+
+      /* FOUC guard for the GSAP line-by-line text reveal. Text is held hidden
+         (layout preserved) until SplitText runs; keep this selector in sync with
+         TEXT_SELECTOR in src/scripts/text-reveal.ts. */
+      html.gsap-split :is(h1, h2, h3, h4, h5, h6, p, .wysiwyg, .service-car_list-item) {
+        visibility: hidden;
+      }
+      .gsap-line { will-change: transform; }
+
+      /* KPI cards: al hacer hover el fondo pasa a blanco y el texto a negro,
+         con una transición suave de 0.6s ease-in-out. Las cards se renderizan
+         desde la página (no desde el layout), así que hay que usar :global()
+         para que Astro no scopee los selectores con el cid del layout. */
+      :global(.kpi-card),
+      :global(.kpi-card .kpi-concept),
+      :global(.kpi-card .kpi-number),
+      :global(.skill-card),
+      :global(.skill-card .heading),
+      :global(.skill-card .wysiwyg) {
+        transition: background-color 0.6s ease-in-out, color 0.6s ease-in-out,
+          border-color 0.6s ease-in-out;
+      }
+      :global(.kpi-card:hover),
+      :global(.skill-card:hover) {
+        background-color: #fff;
+        color: var(--base--black);
+      }
+      :global(.kpi-card:hover .kpi-concept),
+      :global(.kpi-card:hover .kpi-number),
+      :global(.skill-card:hover .heading),
+      :global(.skill-card:hover .wysiwyg) {
+        color: var(--base--black);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .carousel-row { animation: none; }
+        [data-reveal] { transition: none; }
+        :global(.kpi-card),
+        :global(.kpi-card .kpi-concept),
+        :global(.kpi-card .kpi-number),
+        :global(.skill-card),
+        :global(.skill-card .heading),
+        :global(.skill-card .wysiwyg) { transition: none; }
+      }
+    </style>
+  </head>
+  <body class={bodyClass}>
+    <div class="cursor"></div>
+    <slot />
+
+    <!-- GSAP line-by-line text reveal (SplitText + ScrollTrigger) -->
+    <script>
+      import '../scripts/text-reveal.ts';
+    </script>
+
+    <!-- Doble carrusel de imágenes ligado al scroll (páginas de proyecto) -->
+    <script>
+      import '../scripts/description-carousel.ts';
+    </script>
+
+    <!-- Transición de zoom ligada al scroll (.description-zoom-transition) -->
+    <script>
+      import '../scripts/zoom-transition.ts';
+    </script>
+
+    <script>
+      // --- Custom cursor (desktop only) ---
+      const cursor = document.querySelector<HTMLElement>('.cursor');
+      if (cursor && window.matchMedia('(min-width: 991px)').matches) {
+        document.addEventListener('mousemove', (e) => {
+          cursor.style.top = e.pageY - 10 + 'px';
+          cursor.style.left = e.pageX - 10 + 'px';
+        });
+        document.addEventListener('click', () => {
+          cursor.classList.add('expand');
+          setTimeout(() => cursor.classList.remove('expand'), 500);
+        });
+      }
+
+      // Hamburger / mobile nav toggle is handled by GSAP in Nav.astro.
+
+      // --- Scroll reveal for elements the Webflow IX2 left at opacity:0 ---
+      // Text blocks are handled by the GSAP line-by-line reveal (text-reveal.ts),
+      // so exclude them here to avoid double-animating opacity.
+      const TEXT_SELECTOR = 'h1, h2, h3, h4, h5, h6, p, .wysiwyg, .service-car_list-item';
+      const hidden = Array.from(
+        document.querySelectorAll<HTMLElement>('[style*="opacity:0"], [style*="opacity: 0"]')
+      ).filter((el) => !el.matches(TEXT_SELECTOR));
+      const reveal = (el: HTMLElement) => {
+        el.setAttribute('data-reveal', '');
+        el.style.opacity = '1';
+        el.style.transform = 'none';
+      };
+      if ('IntersectionObserver' in window && hidden.length) {
+        const io = new IntersectionObserver(
+          (entries, obs) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                reveal(entry.target as HTMLElement);
+                obs.unobserve(entry.target);
+              }
+            });
+          },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.05 }
+        );
+        hidden.forEach((el) => {
+          el.setAttribute('data-reveal', '');
+          io.observe(el);
+        });
+        // Safety net: never leave content invisible.
+        setTimeout(() => hidden.forEach(reveal), 2500);
+      } else {
+        hidden.forEach(reveal);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+---
+// Big display-name footer. Shared across all pages.
+---
+<div class="footer bg-base-black">
+  <div class="container-17 nopadding__right vertical-flex">
+    <div class="footer-display--wrapper">
+      <div class="display-xl uppercase underoverlay">M</div>
+      <div class="display-xl uppercase upperoverlay">r</div>
+      <div class="display-xl uppercase underoverlay">M</div>
+      <div class="display-xl uppercase upperoverlay">o</div>
+      <div class="display-xl uppercase underoverlay">i</div>
+      <div class="display-xl uppercase upperoverlay">s</div>
+      <div class="display-xl uppercase underoverlay">e</div>
+      <div class="display-xl uppercase upperoverlay">s</div>
+    </div>
+    <div class="fotter-text-container">
+      <div class="wysiwyg copyright">© 2025     Moisés Salmán - Product Growth Designer</div>
+      <div class="wysiwyg copyright">No Code Lover</div>
+    </div>
+    <div class="image-wrapper width__9"></div>
+  </div>
+</div>
+
+<style>
+  /* Letras del footer en gris #646464 con un "foco" blanco que sigue al cursor.
+     Cada letra usa background-clip:text con un degradado radial centrado en
+     --x/--y (coordenadas del cursor relativas a esa letra, fijadas por JS). El
+     radio del foco --spot es 0 en reposo (todo gris) y crece al hacer hover. */
+  @property --spot {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+  }
+
+  .footer-display--wrapper :global(.display-xl) {
+    --x: 50%;
+    --y: 50%;
+    --spot: 0px;
+    transition: --spot 0.45s ease;
+  }
+
+  /* Mayor especificidad que las reglas .display-xl.uppercase.underoverlay/.upperoverlay
+     del CSS de Webflow, para sustituir su degradado vertical por el foco radial. */
+  .footer-display--wrapper :global(.display-xl.uppercase.underoverlay),
+  .footer-display--wrapper :global(.display-xl.uppercase.upperoverlay) {
+    background-image: radial-gradient(
+      circle var(--spot) at var(--x) var(--y),
+      #ffffff 0%,
+      #ffffff 6%,
+      #3a3a3a 92%
+    );
+    color: #fff0;
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .footer-display--wrapper:hover :global(.display-xl) {
+    --spot: 14vw;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .footer-display--wrapper :global(.display-xl) { transition: none; }
+  }
+</style>
+
+<script>
+  // Mueve el foco de luz: en cada movimiento del ratón fija --x/--y en cada
+  // letra como la posición del cursor relativa a su propia caja, de modo que el
+  // degradado radial sea continuo y atraviese varias letras.
+  const wrapper = document.querySelector<HTMLElement>('.footer-display--wrapper');
+  if (wrapper && window.matchMedia('(hover: hover)').matches) {
+    const letters = Array.from(
+      wrapper.querySelectorAll<HTMLElement>('.display-xl')
+    );
+    let raf = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    const update = () => {
+      raf = 0;
+      for (const el of letters) {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--x', `${lastX - r.left}px`);
+        el.style.setProperty('--y', `${lastY - r.top}px`);
+      }
+    };
+
+    wrapper.addEventListener('mousemove', (e) => {
+      lastX = e.clientX;
+      lastY = e.clientY;
+      if (!raf) raf = requestAnimationFrame(update);
+    });
+  }
+</script>

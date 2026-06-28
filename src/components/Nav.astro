@@ -21,9 +21,26 @@
     top: 0;
     transition: transform 0.35s ease;
     will-change: transform;
-    /* Pegado arriba: recorta el padding superior del nav (Webflow usaba 1.5vw). */
-    padding-top: 0.6vw;
+    /* Espacio superior pequeño y consistente para TODAS las páginas (home y
+       proyectos quedan igual). Webflow usaba 1.5vw. */
+    padding-top: 1vw;
     padding-bottom: 1vw;
+  }
+
+  /* En tablet/móvil un pelín más de aire para que no quede cortado el logo. */
+  @media (max-width: 767px) {
+    .menu-top-nav {
+      padding-top: 4vw;
+      padding-bottom: 4vw;
+    }
+  }
+
+  /* Webflow mete un padding-top enorme en el body de las páginas que NO son de
+     proyecto (.bg-base-black): 10vw en tablet y 20vw en móvil. Eso empujaba el
+     nav muy abajo. Lo anulamos; el espacio superior lo da el propio nav.
+     `body.bg-base-black` (0,1,1) gana a la regla `.bg-base-black` de Webflow. */
+  :global(body.bg-base-black) {
+    padding-top: 0;
   }
 
   /* Menos espacio entre el nav y el contenido del hero (home, contacto y demás

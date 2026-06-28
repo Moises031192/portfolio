@@ -29,3 +29,6 @@ pnpm-debug.log*
 # ShipStudio metadata
 .shipstudio/
 .vercel
+
+# Archivo temporal de registros DNS (compartido, no versionar)
+mrmoises.es.txt

@@ -21,6 +21,18 @@
     top: 0;
     transition: transform 0.35s ease;
     will-change: transform;
+    /* Pegado arriba: recorta el padding superior del nav (Webflow usaba 1.5vw). */
+    padding-top: 0.6vw;
+    padding-bottom: 1vw;
+  }
+
+  /* Menos espacio entre el nav y el contenido del hero (home, contacto y demás
+     páginas que NO son de proyecto; esas usan .hero_project y ya están bien).
+     Webflow dejaba padding-top 2.5vw en el hero. Usamos `body .hero-section`
+     para subir la especificidad (0,1,1) y ganar al shorthand `padding` de
+     Webflow (0,1,0) sin depender del orden de las hojas en el build. */
+  :global(body .hero-section) {
+    padding-top: 0.5vw;
   }
 
   .menu-top-nav.nav-hidden {

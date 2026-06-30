@@ -24,15 +24,17 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
 
     gsap.fromTo(
       img,
-      { yPercent: -4, scale: 1.12 },
+      { yPercent: -7, scale: 1.2 },
       {
-        yPercent: 4,
-        scale: 1.12,
+        yPercent: 7,
+        scale: 1.2,
         ease: 'none',
         scrollTrigger: {
           trigger: section,
           start: 'top top',
-          end: 'bottom top',
+          // 'bottom bottom' concentra el recorrido del parallax mientras la
+          // sección sigue a la vista, para que se note durante el scroll.
+          end: 'bottom bottom',
           scrub: true,
         },
       }

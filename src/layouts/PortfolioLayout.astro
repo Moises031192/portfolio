@@ -169,9 +169,12 @@ const {
         transition: color 1s cubic-bezier(0.22, 1, 0.36, 1);
       }
       :global(.cta.base__white:hover .cta-circle) {
-        /* Entrada (hover-in) más lenta que la salida (1s del estado base). */
-        transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
-        transform: scale(60);
+        /* Entrada (hover-in) con arranque lento (ease-in-out) para que el
+           llenado se perciba progresivo. Con scale(60)+easeOut el botón se
+           cubría en el primer tercio; con ease-in-out y scale(48) el frente de
+           llenado usa casi toda la duración. */
+        transition: transform 1.4s cubic-bezier(0.65, 0, 0.35, 1);
+        transform: scale(48);
       }
       :global(.cta.base__white:hover .cta-text.dark__type) {
         color: #fff;

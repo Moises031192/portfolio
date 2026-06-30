@@ -154,9 +154,22 @@ const {
         color: var(--base--black);
       }
 
+      /* CTA buttons (.cta.base__white): el círculo negro de la derecha se
+         expande hasta rellenar todo el botón en hover y el texto pasa a blanco.
+         El botón ya trae overflow:hidden, el texto z-index:2 y transiciones de
+         0.6s desde el export de Webflow; aquí solo añadimos el estado :hover. */
+      :global(.cta.base__white:hover .cta-circle) {
+        transform: scale(60);
+      }
+      :global(.cta.base__white:hover .cta-text.dark__type) {
+        color: #fff;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .carousel-row { animation: none; }
         [data-reveal] { transition: none; }
+        :global(.cta.base__white:hover .cta-circle) { transform: none; }
+        :global(.cta.base__white:hover .cta-text.dark__type) { color: var(--base--black); }
         :global(.kpi-card),
         :global(.kpi-card .kpi-concept),
         :global(.kpi-card .kpi-number),

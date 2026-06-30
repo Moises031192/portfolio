@@ -53,6 +53,11 @@
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
+    /* Webflow descuadra las letras: .underoverlay usa line-height:20vw y
+       .upperoverlay añade padding-top:1vw. Normalizamos ambas para que todas
+       queden alineadas sobre la misma línea base. */
+    line-height: 1;
+    padding-top: 0;
   }
 
   .footer-display--wrapper:hover :global(.display-xl) {

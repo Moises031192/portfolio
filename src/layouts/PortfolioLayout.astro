@@ -169,6 +169,8 @@ const {
         transition: color 1s cubic-bezier(0.22, 1, 0.36, 1);
       }
       :global(.cta.base__white:hover .cta-circle) {
+        /* Entrada (hover-in) más lenta que la salida (1s del estado base). */
+        transition: transform 1.6s cubic-bezier(0.22, 1, 0.36, 1);
         transform: scale(60);
       }
       :global(.cta.base__white:hover .cta-text.dark__type) {

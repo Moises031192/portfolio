@@ -10,11 +10,50 @@ interface Props {
 }
 
 const {
-  title = 'MrMoises Portfolio',
-  description = 'Product Designer y Nocode-Lover',
+  title = 'Moisés Salmán — Product Designer growth & conversión',
+  description =
+    'Portfolio de Moisés Salmán, product designer freelance especializado en growth, creatividad y conversión.',
   ogImage = '/images/Moises-portada.webp',
   bodyClass = 'bg-base-black',
 } = Astro.props;
+
+// Canonical + absolute OG image, derived from `site` in astro.config.
+const ORIGIN = Astro.site ?? new URL('https://www.mrmoises.es');
+const canonical = new URL(Astro.url.pathname, ORIGIN).href;
+const ogImageAbs = new URL(ogImage, ORIGIN).href;
+
+// Structured data: Person (entity identity + disambiguation) and WebSite.
+// `sameAs` links are the strongest signal that "Moisés Salmán product designer"
+// is this person — fill them once the social/professional profiles are known.
+const sameAs = ['https://www.instagram.com/mrmoises92/'];
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Moisés Salmán',
+  url: ORIGIN.href,
+  image: new URL('/images/moises_salman.jpg', ORIGIN).href,
+  jobTitle: 'Product Designer',
+  email: 'info@mrmoises.es',
+  description:
+    'Product designer freelance especializado en growth, creatividad y conversión.',
+  knowsAbout: [
+    'Product Design',
+    'UX/UI Design',
+    'Growth Design',
+    'Conversion Rate Optimization',
+    'Webflow',
+    'No-code',
+  ],
+  ...(sameAs.length ? { sameAs } : {}),
+};
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Moisés Salmán — Portfolio',
+  url: ORIGIN.href,
+  inLanguage: 'es-ES',
+  author: { '@type': 'Person', name: 'Moisés Salmán' },
+};
 ---
 
 <!DOCTYPE html>
@@ -23,15 +62,22 @@ const {
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1" name="viewport" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
     <meta content={title} property="og:title" />
     <meta content={description} property="og:description" />
-    <meta content={ogImage} property="og:image" />
+    <meta content={ogImageAbs} property="og:image" />
+    <meta content={canonical} property="og:url" />
+    <meta content="es_ES" property="og:locale" />
     <meta content={title} name="twitter:title" />
     <meta content={description} name="twitter:description" />
-    <meta content={ogImage} name="twitter:image" />
+    <meta content={ogImageAbs} name="twitter:image" />
     <meta property="og:type" content="website" />
     <meta content="summary_large_image" name="twitter:card" />
     <meta content="Webflow" name="generator" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(personSchema)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
     <link href="/css/normalize.css" rel="stylesheet" type="text/css" />
     <link href="/css/webflow.css" rel="stylesheet" type="text/css" />

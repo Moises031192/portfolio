@@ -1,0 +1,63 @@
+/* ============================================================
+   Page transition layer  (logic in ../scripts/page-transition.ts)
+   Imported by PortfolioLayout.astro so it loads on every page
+   (global.css is NOT used by that layout — the site uses the
+   Webflow stylesheets — so these rules live in their own file).
+
+   Only active when JS is present and motion is allowed
+   (html.pt-ready, set by an inline guard in PortfolioLayout).
+   - .pt-veil  : black dim (0 -> 0.5) over the shrinking page on exit
+   - .pt-cover : black panel that pivots on its top-right corner to
+                 cover (rotate 0) / reveal (rotate OFF, driven by JS)
+   The cover PAINTS covering (rotate 0) on every load so the incoming
+   page is masked from first paint (no white flash on hard navigation).
+   ============================================================ */
+.pt-veil,
+.pt-cover-clip { display: none; }
+
+html.pt-ready .pt-veil,
+html.pt-ready .pt-cover-clip { display: block; }
+
+.pt-veil {
+  position: fixed;
+  inset: 0;
+  background: #101010;
+  opacity: 0;               /* JS: 0 -> 0.5 on exit, back to 0 on enter */
+  pointer-events: none;
+  z-index: 100000;
+  will-change: opacity;
+}
+
+.pt-cover-clip {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;         /* clips the oversized rotating panel (no scrollbars) */
+  pointer-events: none;
+  z-index: 100001;
+}
+
+.pt-cover {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 250vmax;
+  height: 250vmax;
+  background: #101010;
+  transform-origin: 100% 0; /* pivot on its own top-right corner */
+  transform: rotate(0deg);  /* initial paint = covering; JS reveals it */
+  will-change: transform;
+}
+
+#page-scale { will-change: transform; }
+
+/* Blur only while a transition runs (a filter, like a transform, would create a
+   containing block for fixed descendants — so we never apply it at rest). */
+html.pt-anim #page-scale { filter: blur(var(--pt-blur, 0px)); }
+
+/* Hide the custom cursor while transitioning. */
+html.pt-anim .cursor { opacity: 0 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-veil,
+  .pt-cover-clip { display: none !important; }
+}

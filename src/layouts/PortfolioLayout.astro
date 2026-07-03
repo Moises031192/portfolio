@@ -1,4 +1,5 @@
 ---
+import '../styles/page-transition.css';
 // Pixel-perfect Webflow migration layout.
 // Imports the original Webflow stylesheets verbatim (served from /public/css),
 // which in turn pull fonts from /public/fonts and background images from /public/images.
@@ -86,10 +87,13 @@ const websiteSchema = {
     <link href="/images/favicon.svg" rel="shortcut icon" type="image/x-icon" />
     <link href="/images/webclip.svg" rel="apple-touch-icon" />
 
-    <!-- FOUC guard: hide text until GSAP splits it (skipped for reduced motion). -->
+    <!-- FOUC guard: hide text until GSAP splits it (skipped for reduced motion).
+         Same guard arms the page-transition layer (pt-ready) so the incoming
+         page paints already covered in black — no white flash on hard nav. -->
     <script is:inline>
       if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
         document.documentElement.classList.add('gsap-split');
+        document.documentElement.classList.add('pt-ready');
       }
     </script>
 
@@ -244,8 +248,17 @@ const websiteSchema = {
     </style>
   </head>
   <body class={bodyClass}>
+    <!-- Page transition layer (styles in styles/page-transition.css, logic in scripts/page-transition.ts) -->
+    <div class="pt-veil" aria-hidden="true"></div>
+    <div class="pt-cover-clip" aria-hidden="true"><div class="pt-cover"></div></div>
+
     <div class="cursor"></div>
-    <slot />
+    <div id="page-scale"><slot /></div>
+
+    <!-- Page transition: exit (scale + veil + rotating cover) / enter reveal -->
+    <script>
+      import '../scripts/page-transition.ts';
+    </script>
 
     <!-- Smooth scroll vertical (Locomotive Scroll v5 / Lenis) -->
     <script>

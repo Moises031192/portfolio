@@ -29,11 +29,40 @@ const json = (body: unknown, status: number) =>
     headers: { 'Content-Type': 'application/json' },
   });
 
-export const POST: APIRoute = async ({ request }) => {
+// Rate limit por IP (best-effort, en memoria de la función). Frena bots que
+// intenten inundar el formulario y agotar la cuota de Resend. No es perfecto
+// entre instancias, pero corta el abuso masivo sin dependencias externas.
+const RATE_LIMIT = 5; // envíos permitidos...
+const RATE_WINDOW_MS = 60_000; // ...por ventana de 1 minuto.
+const hits = new Map<string, { count: number; resetAt: number }>();
+
+const isRateLimited = (ip: string): boolean => {
+  const now = Date.now();
+  const entry = hits.get(ip);
+  if (!entry || now > entry.resetAt) {
+    hits.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+  entry.count += 1;
+  return entry.count > RATE_LIMIT;
+};
+
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   const apiKey = import.meta.env.RESEND_API_KEY;
   if (!apiKey) {
     console.error('RESEND_API_KEY is not set');
     return json({ error: 'Servicio de email no configurado.' }, 500);
+  }
+
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+    clientAddress ||
+    'unknown';
+  if (isRateLimited(ip)) {
+    return json(
+      { error: 'Demasiados envíos. Espera un momento e inténtalo de nuevo.' },
+      429
+    );
   }
 
   let data: Record<string, string>;

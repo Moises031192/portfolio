@@ -1,19 +1,19 @@
 // Global text reveal: every text block fades in line-by-line when it enters the
-// viewport. Each line is masked (overflow-clip) and rises from yPercent:5 + opacity:0
-// to its resting position (yPercent:0 + opacity:1). Driven by GSAP SplitText +
-// ScrollTrigger. Wired in PortfolioLayout.astro.
+// viewport. Each line is masked (overflow-clip) and rises from yPercent:100 +
+// opacity:0 to its resting position (yPercent:0 + opacity:1).
+//
+// The animation is GSAP SplitText, but the *trigger* is a native
+// IntersectionObserver rather than ScrollTrigger. On mobile ScrollTrigger's
+// precomputed scroll positions drift badly (the address bar shows/hides and the
+// layout reflows after images/fonts load), which left fully on-screen text
+// stuck hidden until you scrolled well past it. IntersectionObserver is
+// evaluated by the browser against the live layout, so it fires exactly when a
+// block enters view regardless of the mobile viewport quirks. Wired in
+// PortfolioLayout.astro.
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
-
-// On mobile the address bar shows/hides while scrolling, which changes the
-// viewport height and would otherwise make ScrollTrigger recompute start
-// positions mid-scroll — causing reveals to fire late (only after you've
-// already scrolled past the text). Pinning the resize handling keeps the
-// start points stable.
-ScrollTrigger.config({ ignoreMobileResize: true });
+gsap.registerPlugin(SplitText);
 
 // Keep this list in sync with the pre-hide CSS and the IX2 filter in PortfolioLayout.astro.
 export const TEXT_SELECTOR =
@@ -21,14 +21,29 @@ export const TEXT_SELECTOR =
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// On mobile fire the reveal *before* the block reaches the fold (start > 100%
-// means the trigger is still below the viewport bottom), and run a shorter,
-// tighter animation so each block is essentially resolved the moment it enters
-// view instead of animating late as you scroll past it.
+// Snappier reveal on mobile so blocks resolve almost the instant they appear
+// instead of animating lazily as you scroll past them.
 const isMobile = matchMedia('(max-width: 990px)').matches;
-const revealStart = isMobile ? 'top 115%' : 'top 85%';
-const revealDuration = isMobile ? 0.6 : 1.2;
+const revealDuration = isMobile ? 0.6 : 1.1;
 const revealStagger = isMobile ? 0.04 : 0.08;
+
+// Each split block gets its reveal tween created paused; the observer plays it.
+const tweenByEl = new WeakMap<Element, gsap.core.Tween>();
+const revealedEls = new WeakSet<Element>();
+
+// rootMargin bottom is expanded so the reveal fires a bit *before* the block
+// scrolls into view — by the time it's actually on screen it's already resolving.
+const observer = new IntersectionObserver(
+  (entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      revealedEls.add(entry.target);
+      tweenByEl.get(entry.target)?.play();
+      observer.unobserve(entry.target);
+    }
+  },
+  { root: null, rootMargin: '0px 0px 18% 0px', threshold: 0 }
+);
 
 // Drop the FOUC guard so nothing can stay invisible.
 function showAll() {
@@ -65,7 +80,7 @@ function init() {
       autoSplit: true, // re-split on font load / width change for correct line breaks
       onSplit(self) {
         // Returning the tween lets SplitText revert + time-sync it on re-split.
-        return gsap.fromTo(
+        const tween = gsap.fromTo(
           self.lines,
           { yPercent: 100, opacity: 0 },
           {
@@ -74,13 +89,18 @@ function init() {
             duration: revealDuration,
             ease: 'power4.out',
             stagger: revealStagger,
-            scrollTrigger: {
-              trigger: el,
-              start: revealStart,
-              once: true,
-            },
+            paused: true,
           }
         );
+        tweenByEl.set(el, tween);
+
+        if (revealedEls.has(el)) {
+          // Already revealed before this re-split — keep it shown, don't replay.
+          tween.progress(1);
+        } else {
+          observer.observe(el);
+        }
+        return tween;
       },
     });
 
@@ -88,7 +108,6 @@ function init() {
   }
 
   showAll();
-  ScrollTrigger.refresh();
 }
 
 // Split after fonts are ready so line breaks are measured correctly.

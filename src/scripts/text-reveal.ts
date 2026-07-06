@@ -21,11 +21,15 @@ export const TEXT_SELECTOR =
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Snappier reveal on mobile so blocks resolve almost the instant they appear
-// instead of animating lazily as you scroll past them.
 const isMobile = matchMedia('(max-width: 990px)').matches;
-const revealDuration = isMobile ? 0.6 : 1.1;
-const revealStagger = isMobile ? 0.04 : 0.08;
+const revealDuration = isMobile ? 0.8 : 1.1;
+const revealStagger = isMobile ? 0.06 : 0.08;
+
+// Trigger the reveal a little AFTER the block starts entering the viewport (the
+// negative bottom margin pulls the trigger line up into the screen) so the
+// entrance animation actually plays on screen where you can see it — a positive
+// margin would fire it off-screen and it'd be done before the block appears.
+const rootMargin = '0px 0px -12% 0px';
 
 // Each split block gets its reveal tween created paused; the observer plays it.
 const tweenByEl = new WeakMap<Element, gsap.core.Tween>();
@@ -42,7 +46,7 @@ const observer = new IntersectionObserver(
       observer.unobserve(entry.target);
     }
   },
-  { root: null, rootMargin: '0px 0px 18% 0px', threshold: 0 }
+  { root: null, rootMargin, threshold: 0 }
 );
 
 // Drop the FOUC guard so nothing can stay invisible.

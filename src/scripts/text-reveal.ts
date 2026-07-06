@@ -8,11 +8,25 @@ import { SplitText } from 'gsap/SplitText';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
+// On mobile the address bar shows/hides while scrolling, which changes the
+// viewport height and would otherwise make ScrollTrigger recompute start
+// positions mid-scroll — causing reveals to fire late (only after you've
+// already scrolled past the text). Pinning the resize handling keeps the
+// start points stable.
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 // Keep this list in sync with the pre-hide CSS and the IX2 filter in PortfolioLayout.astro.
 export const TEXT_SELECTOR =
   'h1, h2, h3, h4, h5, h6, p, .wysiwyg, .service-car_list-item';
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// Fire the reveal earlier on small screens: the short mobile viewport means a
+// `top 85%` start lands very close to the fold, so text often only animates
+// once it's already halfway up the screen. Trigger near the very bottom edge
+// on mobile so lines are revealing as they enter view.
+const isMobile = matchMedia('(max-width: 990px)').matches;
+const revealStart = isMobile ? 'top 98%' : 'top 85%';
 
 // Drop the FOUC guard so nothing can stay invisible.
 function showAll() {
@@ -60,7 +74,7 @@ function init() {
             stagger: 0.08,
             scrollTrigger: {
               trigger: el,
-              start: 'top 85%',
+              start: revealStart,
               once: true,
             },
           }

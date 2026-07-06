@@ -21,12 +21,14 @@ export const TEXT_SELECTOR =
 
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Fire the reveal earlier on small screens: the short mobile viewport means a
-// `top 85%` start lands very close to the fold, so text often only animates
-// once it's already halfway up the screen. Trigger near the very bottom edge
-// on mobile so lines are revealing as they enter view.
+// On mobile fire the reveal *before* the block reaches the fold (start > 100%
+// means the trigger is still below the viewport bottom), and run a shorter,
+// tighter animation so each block is essentially resolved the moment it enters
+// view instead of animating late as you scroll past it.
 const isMobile = matchMedia('(max-width: 990px)').matches;
-const revealStart = isMobile ? 'top 98%' : 'top 85%';
+const revealStart = isMobile ? 'top 115%' : 'top 85%';
+const revealDuration = isMobile ? 0.6 : 1.2;
+const revealStagger = isMobile ? 0.04 : 0.08;
 
 // Drop the FOUC guard so nothing can stay invisible.
 function showAll() {
@@ -69,9 +71,9 @@ function init() {
           {
             yPercent: 0,
             opacity: 1,
-            duration: 1.2,
+            duration: revealDuration,
             ease: 'power4.out',
-            stagger: 0.08,
+            stagger: revealStagger,
             scrollTrigger: {
               trigger: el,
               start: revealStart,

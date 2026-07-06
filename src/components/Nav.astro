@@ -66,7 +66,11 @@
     }
 
     .mobile-nav-menu {
-      display: flex !important;
+      /* Cerrado = display:none para que NO exista en el layout: un position:fixed
+         con translateX(100%) NO lo recorta el overflow-x:clip del html/body (su
+         bloque contenedor es el viewport), así que si estuviera "display" se
+         podría alcanzar con scroll lateral. Se muestra solo con .is-open. */
+      display: none;
       flex-direction: column;
       align-items: flex-start; /* anula el flex-end heredado del breakpoint ≤991 */
       text-align: left;
@@ -80,6 +84,10 @@
       transform: translateX(100%); /* fuera, a la derecha; GSAP lo anima a 0 */
       pointer-events: none;
       z-index: 2147483000; /* por encima del nav superior (z-index 9999999) */
+    }
+
+    .mobile-nav-menu.is-open {
+      display: flex;
     }
 
     /* Logo M|M arriba */
@@ -199,6 +207,9 @@
 
     const open = () => {
       gsap.killTweensOf([menu, ...items]);
+      // Añadir la clase primero: pasa a display:flex para poder animarlo (cerrado
+      // está en display:none para que no genere scroll lateral).
+      menu.classList.add('is-open');
       menu.style.pointerEvents = 'auto';
       menu.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
@@ -232,6 +243,8 @@
       menu.setAttribute('aria-hidden', 'true');
       const done = () => {
         menu.style.pointerEvents = 'none';
+        // Volver a display:none para que el panel no pueda alcanzarse por scroll.
+        menu.classList.remove('is-open');
       };
       if (reduce) {
         gsap.set(menu, { xPercent: 100 });

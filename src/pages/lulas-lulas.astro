@@ -3,6 +3,35 @@ import PortfolioLayout from '../layouts/PortfolioLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BottomNav from '../components/BottomNav.astro';
+
+const ORIGIN = (Astro.site ?? new URL('https://www.mrmoises.es')).href;
+const url = new URL(Astro.url.pathname, ORIGIN).href;
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    '@id': `${url}#project`,
+    url,
+    name: 'Lulàs_Lulàs — e-commerce de joyería',
+    headline: 'Lulàs_Lulàs — e-commerce de joyería',
+    inLanguage: 'es-ES',
+    image: `${ORIGIN}images/header.avif`,
+    creator: { '@id': `${ORIGIN}#person` },
+    author: { '@id': `${ORIGIN}#person` },
+    about: 'E-commerce de joyería personalizada de fabricación española',
+    keywords: ['E-commerce Design', 'Shopify', 'UX/UI', 'CRO', 'Joyería'],
+    isPartOf: { '@id': `${ORIGIN}#website` },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: ORIGIN },
+      { '@type': 'ListItem', position: 2, name: 'Proyectos', item: `${ORIGIN}proyectos` },
+      { '@type': 'ListItem', position: 3, name: 'Lulàs_Lulàs', item: url },
+    ],
+  },
+];
 ---
 
 <PortfolioLayout
@@ -10,6 +39,7 @@ import BottomNav from '../components/BottomNav.astro';
   description="Caso de estudio: e-commerce de joyería personalizada de fabricación española, con especial foco en el diseño responsive y la conversión."
   ogImage="/images/Moises-portada.webp"
   bodyClass="body"
+  schema={schema}
 >
   <Nav />
   <div class="cursor">dsfds</div>

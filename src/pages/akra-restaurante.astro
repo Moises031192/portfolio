@@ -3,6 +3,35 @@ import PortfolioLayout from '../layouts/PortfolioLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BottomNav from '../components/BottomNav.astro';
+
+const ORIGIN = (Astro.site ?? new URL('https://www.mrmoises.es')).href;
+const url = new URL(Astro.url.pathname, ORIGIN).href;
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    '@id': `${url}#project`,
+    url,
+    name: 'Akra Restaurante — UX y behavioral design',
+    headline: 'Akra Restaurante — UX y behavioral design',
+    inLanguage: 'es-ES',
+    image: `${ORIGIN}images/_uvs1j3vxv35zghkgnv0o_1.avif`,
+    creator: { '@id': `${ORIGIN}#person` },
+    author: { '@id': `${ORIGIN}#person` },
+    about: 'Restaurante de cocina mediterránea',
+    keywords: ['Marketing website', 'Behavioral design', 'UX/UI', 'Restauración'],
+    isPartOf: { '@id': `${ORIGIN}#website` },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: ORIGIN },
+      { '@type': 'ListItem', position: 2, name: 'Proyectos', item: `${ORIGIN}proyectos` },
+      { '@type': 'ListItem', position: 3, name: 'Akra Restaurante', item: url },
+    ],
+  },
+];
 ---
 
 <PortfolioLayout
@@ -10,6 +39,7 @@ import BottomNav from '../components/BottomNav.astro';
   description="Caso de estudio: UX y behavioral design para Akra Restaurante, diseñado para elevar el ticket medio y aumentar las reservas."
   ogImage="/images/Moises-portada.webp"
   bodyClass="body"
+  schema={schema}
 >
   <Nav />
   <section class="hero_project">

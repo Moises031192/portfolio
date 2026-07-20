@@ -3,6 +3,45 @@ import PortfolioLayout from '../layouts/PortfolioLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BottomNav from '../components/BottomNav.astro';
+
+const ORIGIN = (Astro.site ?? new URL('https://www.mrmoises.es')).href;
+const url = new URL(Astro.url.pathname, ORIGIN).href;
+const projects = [
+  { slug: 'estudioarquo', name: 'Estudio Arquó — escaparate digital de arquitectura' },
+  { slug: 'akra-restaurante', name: 'Akra Restaurante — UX y behavioral design' },
+  { slug: 'basica-co', name: 'Basica & Co — e-commerce de moda' },
+  { slug: 'huntingtallares', name: 'Hunting Tallares — behavioral design' },
+  { slug: 'lulas-lulas', name: 'Lulàs_Lulàs — e-commerce de joyería' },
+];
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${url}#collectionpage`,
+    url,
+    name: 'Proyectos — Moisés Salmán',
+    inLanguage: 'es-ES',
+    isPartOf: { '@id': `${ORIGIN}#website` },
+    about: { '@id': `${ORIGIN}#person` },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: projects.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${ORIGIN}${p.slug}`,
+        name: p.name,
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: ORIGIN },
+      { '@type': 'ListItem', position: 2, name: 'Proyectos', item: url },
+    ],
+  },
+];
 ---
 
 <PortfolioLayout
@@ -10,6 +49,7 @@ import BottomNav from '../components/BottomNav.astro';
   description="Casos de diseño de producto centrados en growth y conversión: e-commerce, restauración, moda y arquitectura. Proyectos que he ayudado a crecer."
   ogImage="/images/Moises-portada.webp"
   bodyClass="bg-base-black"
+  schema={schema}
 >
   <Nav />
   <div class="proyectos-cascada hero-section">

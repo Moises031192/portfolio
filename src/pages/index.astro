@@ -3,6 +3,39 @@ import PortfolioLayout from '../layouts/PortfolioLayout.astro';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import BottomNav from '../components/BottomNav.astro';
+
+// Homepage entity: the freelance product-design practice (an Organization
+// subtype), linked to the Person defined site-wide in PortfolioLayout.
+const ORIGIN = (Astro.site ?? new URL('https://www.mrmoises.es')).href;
+const services = [
+  'Diseño de producto digital',
+  'Growth Design',
+  'Diseño UX/UI',
+  'Optimización de la conversión (CRO)',
+  'Diseño de e-commerce',
+  'Desarrollo web con Webflow y no-code',
+];
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': `${ORIGIN}#organization`,
+  name: 'Moisés Salmán',
+  alternateName: 'Moisés Salmán — Product Designer',
+  url: ORIGIN,
+  image: `${ORIGIN}images/Moises-portada.webp`,
+  logo: `${ORIGIN}images/M-_-M.svg`,
+  description:
+    'Estudio freelance de diseño de producto digital especializado en growth, UX/UI y optimización de la conversión (CRO) para e-commerce.',
+  email: 'info@mrmoises.es',
+  founder: { '@id': `${ORIGIN}#person` },
+  areaServed: { '@type': 'Country', name: 'España' },
+  sameAs: ['https://www.instagram.com/mrmoises92/'],
+  knowsAbout: services,
+  makesOffer: services.map((name) => ({
+    '@type': 'Offer',
+    itemOffered: { '@type': 'Service', name },
+  })),
+};
 ---
 
 <PortfolioLayout
@@ -10,6 +43,7 @@ import BottomNav from '../components/BottomNav.astro';
   description="Product designer freelance especializado en growth, creatividad y conversión. Diseño productos digitales que reducen fricción y mejoran resultados."
   ogImage="/images/Moises-portada.webp"
   bodyClass="bg-base-black"
+  schema={organizationSchema}
 >
   <Nav />
   <div class="hero-section">

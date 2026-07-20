@@ -30,7 +30,10 @@ const ogImageAbs = new URL(ogImage, ORIGIN).href;
 // Structured data: Person (entity identity + disambiguation) and WebSite.
 // `sameAs` links are the strongest signal that "Moisés Salmán product designer"
 // is this person — fill them once the social/professional profiles are known.
-const sameAs = ['https://www.instagram.com/mrmoises92/'];
+const sameAs = [
+  'https://www.instagram.com/mrmoises92/',
+  'https://www.linkedin.com/in/mois%C3%A9s-salm%C3%A1n-callejo-4005a2148/',
+];
 const personId = `${ORIGIN.href}#person`;
 const websiteId = `${ORIGIN.href}#website`;
 const personSchema = {
@@ -39,7 +42,7 @@ const personSchema = {
   '@id': personId,
   name: 'Moisés Salmán',
   url: ORIGIN.href,
-  image: new URL('/images/moises_salman.jpg', ORIGIN).href,
+  image: new URL('/images/moises_salman.avif', ORIGIN).href,
   jobTitle: 'Product Designer',
   email: 'info@mrmoises.es',
   description:

@@ -29,7 +29,10 @@ const organizationSchema = {
   email: 'info@mrmoises.es',
   founder: { '@id': `${ORIGIN}#person` },
   areaServed: { '@type': 'Country', name: 'España' },
-  sameAs: ['https://www.instagram.com/mrmoises92/'],
+  sameAs: [
+    'https://www.instagram.com/mrmoises92/',
+    'https://www.linkedin.com/in/mois%C3%A9s-salm%C3%A1n-callejo-4005a2148/',
+  ],
   knowsAbout: services,
   makesOffer: services.map((name) => ({
     '@type': 'Offer',
